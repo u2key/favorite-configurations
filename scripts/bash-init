@@ -1,0 +1,42 @@
+#! /bin/bash
+
+if [ -f /etc/environment ]; then
+  . /etc/environment
+fi
+
+export PATH="${PATH}:${HOME}/favorite-configurations/scripts/"
+
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/include/opencv4"
+
+alias ll='ls -l'
+alias rr='rm -vrf'
+alias rm-empty='find ./ -depth -type d -empty -exec rm -v -r {} \;'
+alias sd='sudo shutdown now'
+alias re='sudo systemctl reboot'
+alias uefi='sudo systemctl reboot --firmware-setup'
+alias remmina='GDK_BACKEND=x11 remmina'
+alias bashrc='vim ${HOME}/.bashrc && source ${HOME}/.bashrc'
+alias ssh-add='ssh-add ${HOME}/.ssh/id_u2key_ed25519'
+alias ssh-keychain='/usr/bin/keychain -q --nogui ${HOME}/.ssh/id_u2key_ed25519 && source ${HOME}/.keychain/${HOSTNAME}-sh'
+alias git-pull='git pull origin main'
+alias otp='pushd ~/gmail-python-api/ && python3 main.py && popd'
+alias wserv='python3 -m http.server 8080'
+
+if [ $UID -eq 0 ]; then
+  PS1="\[\e]0;\u@\h: \w\a\]\[\033[;94m\]┌──${debian_chroot:+($debian_chroot)──}${VIRTUAL_ENV:+(\[\033[0;1m\]$(basename $VIRTUAL_ENV)\[\033[;94m\])}(\[\033[1;31m\]\u@\h\[\033[;94m\])-[\[\033[0;1m\]\w\[\033[;94m\]]\n\[\033[;94m\]└─\[\033[1;31m\]\\$\[\033[0m\] "
+else
+  PS1="\[\e]0;\u@\h: \w\a\]\[\033[;32m\]┌──${debian_chroot:+($debian_chroot)──}${VIRTUAL_ENV:+(\[\033[0;1m\]$(basename $VIRTUAL_ENV)\[\033[;32m\])}(\[\033[1;34m\]\u@\h\[\033[;32m\])-[\[\033[0;1m\]\w\[\033[;32m\]]\n\[\033[;32m\]└─\[\033[1;34m\]\\$\[\033[0m\] "
+fi
+
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  fi
+fi
+
+if [ -f ${HOME}/favorite-configurations/scripts/bash-set-completion ]; then
+  . ${HOME}/favorite-configurations/scripts/bash-set-completion
+fi
+
+echo "" > $HOME/.bash_history
+echo "" > $HOME/.history
