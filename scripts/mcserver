@@ -1,0 +1,25 @@
+#! /bin/bash
+
+echo "server.jar is download from https://mcversions.net/"
+
+if [ $# -ge 1 ]; then
+  WORLD=$1
+  if [ ! -d $WORLD ]; then
+    if [ $# -ge 2 ]; then
+      VERSION=$2
+    else
+      echo "mcserver <world_name> <minecraft_version>"
+      exit 1
+    fi
+    if [ -d ${VERSION} ]; then
+      cp -r ${VERSION} $WORLD
+    else
+      echo "${VERSION} is not found"
+      exit 1
+    fi
+  fi
+  pushd $WORLD
+  java -Xmx8192M -Xms1024M -jar server.jar nogui | tee "serverlog-$(date +%Y%m%d%H%M%S).log"
+  popd
+fi
+
