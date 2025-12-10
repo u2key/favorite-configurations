@@ -17,4 +17,4 @@
 [user]
   email = 248891400+u2key@users.noreply.github.com
   name = u2key
-  signingkey = ~/.ssh/id_u2key_ed25519.pub
+  signingkey = ~/.ssh/id_u2key_ed25519
