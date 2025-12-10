@@ -1,0 +1,119 @@
+#! /bin/bash
+
+INPUT_FILE=""
+HEADERS=""
+M3U8=FALSE
+DOWNLOAD_INDEX=0
+N16=$(cat /dev/urandom | tr -dc '1-9' | head -c16)
+RECONNECT=TRUE
+START_TIME=""
+END_TIME=""
+VARIABLE_FRAME_RATE=FALSE
+AUDIO=TRUE
+ROTATE="0"
+CROP=""
+ASPECT=""
+
+while getopts ":-:" OPT; do
+  OPT="-${OPT}${OPTARG}"
+  OPTARG="${!OPTIND}"
+  if [ "${OPT}" = "--input-file" ]; then
+    INPUT_FILE="${OPTARG}"
+    shift
+  elif [ "${OPT}" = "--m3u8" ]; then
+    M3U8=TRUE
+  elif [ "${OPT}" = "--no-reconnect" ]; then
+    RECONNECT=FALSE
+  elif [ "${OPT}" = "--start" ]; then
+    START_TIME="${OPTARG}"
+    shift
+  elif [ "${OPT}" = "--end" ]; then
+    END_TIME="${OPTARG}"
+    shift
+  elif [ "${OPT}" = "--variable-frame-rate" ]; then
+    VARIABLE_FRAME_RATE=TRUE
+  elif [ "${OPT}" = "--no-audio" ]; then
+    AUDIO=FALSE
+  elif [ "${OPT}" = "--rotate" ]; then
+    ROTATE="${OPTARG}"
+    shift
+  elif [ "${OPT}" = "--crop" ]; then
+    CROP="${OPTARG}"
+    shift
+  elif [ "${OPT}" = "--aspect" ]; then
+    ASPECT="${OPTARG}"
+    shift
+  else
+    echo "Undefined option: ${OPT} ${OPTARG}"
+    exit 1
+  fi
+done
+
+if [ "${M3U8}" = "TRUE" ]; then
+  INPUT_FILE_DIR="$(dirname ${INPUT_FILE})/"
+  DOWNLOAD_INDEX=$(ls download*.m3u8 2>/dev/null | wc -l)
+  echo "curl ${INPUT_FILE} | strings"
+  curl ${INPUT_FILE} | strings > download${DOWNLOAD_INDEX}.m3u8
+  for e in jpeg jpg mp4 png; do
+    cat download${DOWNLOAD_INDEX}.m3u8 | sed -r "s/\.${e}$/\.ts/;s/^(()|(#.*)|(https?:\/\/.*))$/\1/;t;s/^/${INPUT_FILE_DIR//\//\\/}/" > fixed.m3u8
+    mv fixed.m3u8 download${DOWNLOAD_INDEX}.m3u8
+  done
+  INPUT_FILE=download${DOWNLOAD_INDEX}.m3u8
+  RECONNECT=FALSE
+fi
+
+FFMPEG_INPUT_OPT="-loglevel warning -err_detect ignore_err"
+FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -fflags +discardcorrupt"
+FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -protocol_whitelist crypto,data,file,https,tcp,tls"
+if [ "${RECONNECT}" = "TRUE" ]; then
+  FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 12"
+  FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -multiple_requests 1"
+fi
+if [ "${M3U8}" = "TRUE" ]; then
+  FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -seg_max_retry 12 -max_reload 1 -rw_timeout 3000000"
+fi
+if [ "${START_TIME}" != "" ]; then
+  FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -ss ${START_TIME}"
+fi
+if [ "${END_TIME}" != "" ]; then
+  FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -to ${END_TIME}"
+fi
+FFMPEG_OUTPUT_OPT="-tag:v hvc1 -movflags +faststart"
+FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -max_muxing_queue_size 9999"
+FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -c:v libx265 -level:v 4.0"
+FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -b_strategy 2 -bf 2"
+FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -flags cgop -coder ac -pix_fmt yuv420p -crf 18"
+if [ "${VARIABLE_FRAME_RATE}" = "TRUE" ]; then
+  FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -fps_mode vfr"
+fi
+FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -bufsize 100M"
+if [ "${AUDIO}" = "TRUE" ]; then
+  FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -map 0:a:0 -c:a aac -aac_coder twoloop -ac 2 -ar 48000"
+fi
+FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -map 0:v:0 -map_chapters -1 -map -0:s -map_metadata -1"
+FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -fflags +bitexact -flags:v +bitexact -flags:a +bitexact"
+if [ "${ROTATE}" != "" ] && [ "$ROTATE" != "0" ]; then
+  if [ "${ROTATE}" = "90" ]; then
+    FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -vf transpose=1"
+  elif [ "${ROTATE}" = "180" ]; then
+    FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -vf hflip,vflip"
+  elif [ "${ROTATE}" = "270" ]; then
+    FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -vf transpose=2"
+  fi
+fi
+if [ "${CROP}" != "" ]; then
+  FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -vf crop=${CROP}"
+fi
+if [ "${ASPECT}" != "" ]; then
+  FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -aspect ${ASPECT}"
+fi
+if [ "${INPUT_FILE}" != "" ]; then
+  echo "ffmpeg ${FFMPEG_INPUT_OPT} -i \"${INPUT_FILE}\" ${FFMPEG_OUTPUT_OPT} ${N16}.mp4"
+  ffmpeg ${FFMPEG_INPUT_OPT} -i "${INPUT_FILE}" ${FFMPEG_OUTPUT_OPT} ${N16}.mp4
+  echo "chmod 600 ${N16}.mp4"
+  chmod 600 ${N16}.mp4
+fi
+
+if [ "${M3U8}" = "TRUE" ]; then
+  rm -rfv download${DOWNLOAD_INDEX}.m3u8
+fi
