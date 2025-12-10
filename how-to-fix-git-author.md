@@ -17,3 +17,8 @@ u2key <248891400+u2key@users.noreply.github.com> old-name <old-email@users.norep
 ```
 git-filter-repo -f --mailmap ~/mailmap
 ```
+
+## 4. Sign All Commits
+```
+git rebase -i --root --exec 'git commit --amend --no-edit -S'
+```
