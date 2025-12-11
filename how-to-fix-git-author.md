@@ -20,5 +20,5 @@ git-filter-repo -f --mailmap ~/mailmap
 
 ## 4. Sign All Commits
 ```
-git rebase -i --root --exec 'if [ "$(git log -n 1 --format=\"%an\")" = "u2key" ]; then git commit --amend --no-edit -S; fi'
+git rebase -i --root --exec 'if [ "$(git log -n 1 --format="%an")" = "u2key" ]; then git commit --amend --no-edit -S; fi'
 ```
