@@ -16,8 +16,8 @@ alias re='sudo systemctl reboot'
 alias uefi='sudo systemctl reboot --firmware-setup'
 alias remmina='GDK_BACKEND=x11 remmina'
 alias bashrc='vim ${HOME}/.bashrc && source ${HOME}/.bashrc'
-alias ssh-keychain='/usr/bin/keychain -q --nogui ${HOME}/.ssh/id_*_ed25519 && source ${HOME}/.keychain/${HOSTNAME}-sh'
 alias git-pull='git pull origin main'
+alias git-push='git push --force-with-lease'
 alias otp='pushd ~/gmail-python-api/ && python3 main.py && popd'
 alias wserv='python3 -m http.server 8080'
 
@@ -30,6 +30,13 @@ fi
 if ! shopt -oq posix; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then
     . /usr/share/bash-completion/bash_completion
+  fi
+fi
+
+if [ -f /usr/bin/keychain ] && [ $(ls ${HOME}/.ssh/id_*_ed25519 | wc -l) -ge 1 ]; then
+  /usr/bin/keychain -q --nogui ${HOME}/.ssh/id_*_ed25519
+  if [ -f ${HOME}/.keychain/${HOSTNAME}-sh ]; then
+    . ${HOME}/.keychain/${HOSTNAME}-sh
   fi
 fi
 
