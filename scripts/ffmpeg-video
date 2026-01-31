@@ -58,6 +58,7 @@ if [ "${M3U8}" = "TRUE" ]; then
     cat download${DOWNLOAD_INDEX}.m3u8 | sed -r "s/\.${e}$/\.ts/;s/^(()|(#.*)|(https?:\/\/.*))$/\1/;t;s/^/${INPUT_FILE_DIR//\//\\/}/" > fixed.m3u8
     mv fixed.m3u8 download${DOWNLOAD_INDEX}.m3u8
   done
+  vim download${DOWNLOAD_INDEX}.m3u8
   INPUT_FILE=download${DOWNLOAD_INDEX}.m3u8
   RECONNECT=FALSE
 fi
