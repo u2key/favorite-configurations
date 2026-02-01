@@ -1,7 +1,7 @@
 #! /bin/bash
 
 INPUT_FILE=""
-HEADERS=""
+REFERER=""
 M3U8=FALSE
 DOWNLOAD_INDEX=0
 N16=$(cat /dev/urandom | tr -dc '1-9' | head -c16)
@@ -19,6 +19,9 @@ while getopts ":-:" OPT; do
   OPTARG="${!OPTIND}"
   if [ "${OPT}" = "--input-file" ]; then
     INPUT_FILE="${OPTARG}"
+    shift
+  elif [ "${OPT}" = "--referer" ]; then
+    REFERER="${OPTARG}"
     shift
   elif [ "${OPT}" = "--m3u8" ]; then
     M3U8=TRUE
@@ -52,8 +55,12 @@ done
 if [ "${M3U8}" = "TRUE" ]; then
   INPUT_FILE_DIR="$(dirname ${INPUT_FILE})/"
   DOWNLOAD_INDEX=$(ls download*.m3u8 2>/dev/null | wc -l)
-  echo "curl ${INPUT_FILE} | strings"
-  curl ${INPUT_FILE} | strings > download${DOWNLOAD_INDEX}.m3u8
+  CURL_HEADER=""
+  if [ ! "${REFERER}" = "" ]; then
+    CURL_HEADER="-H 'Referer: ${REFERER}'"
+  fi
+  echo "curl ${CURL_HEADER} ${INPUT_FILE} | strings"
+  curl ${CURL_HEADER} ${INPUT_FILE} | strings > download${DOWNLOAD_INDEX}.m3u8
   for e in jpeg jpg mp4 png; do
     cat download${DOWNLOAD_INDEX}.m3u8 | sed -r "s/\.${e}$/\.ts/;s/^(()|(#.*)|(https?:\/\/.*))$/\1/;t;s/^/${INPUT_FILE_DIR//\//\\/}/" > fixed.m3u8
     mv fixed.m3u8 download${DOWNLOAD_INDEX}.m3u8
