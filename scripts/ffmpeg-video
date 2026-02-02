@@ -73,6 +73,9 @@ fi
 FFMPEG_INPUT_OPT="-loglevel warning -err_detect ignore_err"
 FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -fflags +discardcorrupt"
 FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -protocol_whitelist crypto,data,file,https,tcp,tls"
+if [ ! "${REFERER}" = "" ]; then
+  FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -referer '${REFERER}'"
+fi
 if [ "${RECONNECT}" = "TRUE" ]; then
   FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 12"
   FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -multiple_requests 1"
