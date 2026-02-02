@@ -73,9 +73,9 @@ fi
 FFMPEG_INPUT_OPT="-loglevel warning -err_detect ignore_err"
 FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -fflags +discardcorrupt"
 FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -protocol_whitelist crypto,data,file,https,tcp,tls"
-FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -user_agent \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\""
+FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -user_agent Mozilla/5.0\ (Windows\ NT\ 10.0;\ Win64;\ x64)\ AppleWebKit/537.36\ (KHTML,\ like\ Gecko)\ Chrome/144.0.0.0\ Safari/537.36"
 if [ ! "${REFERER}" = "" ]; then
-  FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -referer \"${REFERER}\""
+  FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -referer ${REFERER}"
 fi
 if [ "${RECONNECT}" = "TRUE" ]; then
   FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 12"
