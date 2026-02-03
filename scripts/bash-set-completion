@@ -5,7 +5,17 @@ function _BASH_COMPLETION_FFMPEG_VIDEO() {
   _init_completion || return
   local defaultIFS=$' \t\n'
   local IFS=$defaultIFS
-  COMPREPLY=($(compgen -W '--input-file --referer --m3u8 --no-reconnect --start --end --variable-frame-rate --no-audio --rotate --crop --aspect' -- "$cur"))
+  COMPREPLY=($(compgen -W '--log-level --input-file --referer --m3u8 --no-reconnect --start --end --variable-frame-rate --no-audio --rotate --crop --aspect' -- "$cur"))
 }
 complete -F _BASH_COMPLETION_FFMPEG_VIDEO ffmpeg-video
 complete -F _BASH_COMPLETION_FFMPEG_VIDEO ffv
+
+function _BASH_COMPLETION_FFMPEG_IMAGE() {
+  local cur prev words cword split
+  _init_completion || return
+  local defaultIFS=$' \t\n'
+  local IFS=$defaultIFS
+  COMPREPLY=($(compgen -W '--log-level --list --input-file --referer --rotate --crop --aspect' -- "$cur"))
+}
+complete -F _BASH_COMPLETION_FFMPEG_IMAGE ffmpeg-image
+complete -F _BASH_COMPLETION_FFMPEG_IMAGE ffi
