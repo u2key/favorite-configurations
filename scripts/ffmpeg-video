@@ -1,5 +1,6 @@
 #! /bin/bash
 
+LOG_LEVEL="warning"
 INPUT_FILE=""
 REFERER=""
 M3U8=FALSE
@@ -17,7 +18,10 @@ ASPECT=""
 while getopts ":-:" OPT; do
   OPT="-${OPT}${OPTARG}"
   OPTARG="${!OPTIND}"
-  if [ "${OPT}" = "--input-file" ]; then
+  if [ "${OPT}" = "--log-level" ]; then
+    LOG_LEVEL="${OPTARG}"
+    shift
+  elif [ "${OPT}" = "--input-file" ]; then
     INPUT_FILE="${OPTARG}"
     shift
   elif [ "${OPT}" = "--referer" ]; then
@@ -70,7 +74,7 @@ if [ "${M3U8}" = "TRUE" ]; then
   RECONNECT=FALSE
 fi
 
-FFMPEG_INPUT_OPT="-loglevel warning -err_detect ignore_err"
+FFMPEG_INPUT_OPT="-loglevel ${LOG_LEVEL} -err_detect ignore_err"
 FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -fflags +discardcorrupt"
 FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -protocol_whitelist crypto,data,file,https,tcp,tls"
 FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -user_agent \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36\""
