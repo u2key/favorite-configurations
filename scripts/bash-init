@@ -45,8 +45,8 @@ if [ -f ${HOME}/favorite-configurations/scripts/bash-set-completion ]; then
 fi
 
 if [ ! -f ${HOME}/favorite-configurations/scripts/yt-dlp ]; then
-  wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux -O ${HOME}/favorite-configurations/scripts/yt-dlp
   echo "wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux -O ${HOME}/favorite-configurations/scripts/yt-dlp" 
+  wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux -O ${HOME}/favorite-configurations/scripts/yt-dlp
 fi
 
 echo "" > $HOME/.bash_history
