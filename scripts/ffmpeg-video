@@ -131,7 +131,7 @@ if [ "${INPUT_FILE}" != "" ]; then
     echo "ffmpeg ${FFMPEG_INPUT_OPT} -i \"${INPUT_FILE}\" ${FFMPEG_OUTPUT_OPT} ${N16}.mp4"
     bash -c "ffmpeg ${FFMPEG_INPUT_OPT} -i \"${INPUT_FILE}\" ${FFMPEG_OUTPUT_OPT} ${N16}.mp4"
   else
-    YT_DLP_OPT="--merge-output-format mp4 --recode-video mp4"
+    YT_DLP_OPT="--recode-video mp4"
     YT_DLP_OPT="${YT_DLP_OPT} --format-sort \"vcodec:h265,quality,res,fps,hdr:12,acodec:aac\""
     YT_DLP_OPT="${YT_DLP_OPT} --downloader-args 'ffmpeg:${FFMPEG_INPUT_OPT}'"
     YT_DLP_OPT="${YT_DLP_OPT} --postprocessor-args 'ffmpeg:${FFMPEG_OUTPUT_OPT}'"
