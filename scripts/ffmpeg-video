@@ -80,11 +80,11 @@ fi
 FFMPEG_INPUT_OPT="-loglevel ${LOG_LEVEL} -err_detect ignore_err"
 FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -fflags +discardcorrupt"
 FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -protocol_whitelist crypto,data,file,https,tcp,tls"
-FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -user_agent \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36\""
 if [ ! "${REFERER}" = "" ]; then
   FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -referer ${REFERER}"
 fi
 if [ "${RECONNECT}" = "TRUE" ]; then
+  FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -user_agent \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36\""
   FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 12"
   FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -multiple_requests 1"
 fi
