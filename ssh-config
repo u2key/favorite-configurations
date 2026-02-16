@@ -3,6 +3,7 @@ Host *
   ServerAliveCountMax 300
   IdentitiesOnly yes
   GSSAPIAuthentication no
+  #ForwardAgent yes
 Host github
   Hostname github.com
   User git
