@@ -34,7 +34,7 @@ docker image pull ubuntu
 
 ### 4.2. Create Container
 ```
-docker container run --privileged --network host -p 8080:80 --name momiji -it ubuntu /sbin/init
+docker container run --privileged --network host --name momiji -it ubuntu /bin/bash
 ```
 
 ### 4.3. Display Container List
@@ -47,5 +47,5 @@ docker container ls -a
 docker start momiji
 ```
 ```
-docker container exec -it momiji /sbin/init
+docker container exec -it momiji /bin/bash
 ```
