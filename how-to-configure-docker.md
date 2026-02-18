@@ -34,7 +34,7 @@ docker image pull ubuntu
 
 ### 4.2. Create Container
 ```
-docker container run --network host -p 8080:80 --name momiji -it ubuntu
+docker container run --privileged --network host -p 8080:80 --name momiji -it ubuntu
 ```
 
 ### 4.3. Display Container List
