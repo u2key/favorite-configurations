@@ -20,7 +20,7 @@ ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
 sudo systemctl daemon-reload
 ```
 ```
-sudo systemctl restart --now docker.service
+sudo systemctl restart docker.service
 ```
 ```
 sudo systemctl enable --now docker.service
