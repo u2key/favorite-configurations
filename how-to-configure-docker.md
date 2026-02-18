@@ -1,13 +1,11 @@
 # How to Configure Docker
 
 ## 1. Install Required Packages
-
 ```
 sudo apt install docker.io
 ```
 
 ## 2. Change Root Directory
-
 ```
 sudo vim /lib/systemd/system/docker.service
 ```
@@ -22,5 +20,32 @@ ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
 sudo systemctl daemon-reload
 ```
 ```
-sudo systemctl enable --now docker
+sudo systemctl restart --now docker.service
+```
+```
+sudo systemctl enable --now docker.service
+```
+
+## 4. Sample: Docker Nginx Container
+### 4.1. Pull Image
+```
+docker image pull ubuntu
+```
+
+### 4.2. Create Container
+```
+docker container run --network host -p 8080:80 --name momiji ubuntu
+```
+
+### 4.3. Display Container List
+```
+docker container ls -a
+```
+
+### 4.4. Open Container
+```
+docker start ubuntu
+```
+```
+docker container exec -it ubuntu bash
 ```
