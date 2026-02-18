@@ -44,8 +44,8 @@ docker container ls -a
 
 ### 4.4. Open Container
 ```
-docker start ubuntu
+docker start momiji
 ```
 ```
-docker container exec -it ubuntu bash
+docker container exec -it momiji bash
 ```
