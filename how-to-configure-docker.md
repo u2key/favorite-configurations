@@ -78,3 +78,8 @@ docker start momiji
 ```
 docker container exec -it momiji /bin/bash
 ```
+
+## 5. Auto Start Container
+```
+docker update --restart=always momiji
+```
