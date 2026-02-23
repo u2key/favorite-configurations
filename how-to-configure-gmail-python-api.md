@@ -1,4 +1,4 @@
-# Python API of Gmail
+# How to Configure Python API for Gmail
 
 ## 1. Access to the `Google Cloud Platform`
 - https://console.cloud.google.com/welcome/new
