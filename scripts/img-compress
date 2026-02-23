@@ -1,0 +1,16 @@
+#! /bin/bash
+
+if [ $# -ge 1 ]; then
+  FILE=$1
+  NAME=$(echo $FILE | sed 's/\..*$//');
+  EXT=$(echo $FILE | sed 's/.*\.//g' | tr 'A-Z' 'a-z');
+  echo "File name: ${NAME}";
+  echo "File extension: ${EXT}";
+  if [ "${EXT}" = "jpg" ] || [ "${EXT}" = "jpeg" ]; then
+    echo "convert ${FILE} -sampling-factor 4:2:2 -strip -quality 85 -interlace JPEG -colorspace sRGB -resize 820x ${NAME}.${EXT}";
+    convert ${FILE} -sampling-factor 4:2:2 -strip -quality 85 -interlace JPEG -colorspace sRGB -resize 820x ${NAME}.${EXT};
+  elif [ "${EXT}" = "png" ]; then
+    echo "convert ${FILE} -strip -resize 820x -alpha Remove ${NAME}.${EXT}";
+    convert ${FILE} -strip -resize 820x -alpha Remove ${NAME}.${EXT};
+  fi
+fi
