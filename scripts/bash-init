@@ -58,3 +58,5 @@ fi
 
 echo "" > $HOME/.bash_history
 echo "" > $HOME/.history
+
+set +o history
