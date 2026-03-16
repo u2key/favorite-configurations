@@ -68,7 +68,7 @@ docker import - momiji:latest < momiji.docker.tar
 
 ### 4.5. Create Container
 ```
-docker container run --privileged --network host --name momiji -it momiji /sbin/init
+docker container run --privileged --network host --mac-address 00:15:5d:f0:e8:50 --name momiji -it momiji /sbin/init
 ```
 
 ### 4.6. Open Container
