@@ -45,12 +45,12 @@ docker start momiji
 docker container exec -it momiji /bin/bash
 ```
 
-### 4.4. Install systemd And init
+### 4.4. Install required packages
 ```
 apt update
 ```
 ```
-apt install init systemd
+apt install init libasound2t64 libdbus-1-3 libfontconfig1 libgl1 libglib2.0-0t64 libglx0 libnss3 libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxcb-xkb1 libxext6 libxft2 libxi6 libxkbcommon-x11-0 libxtst6 locales ssh systemd
 ```
 
 ### 4.5. Export momiji
@@ -68,7 +68,7 @@ docker import - momiji:latest < momiji.docker.tar
 
 ### 4.5. Create Container
 ```
-docker container run --privileged --network host --mac-address 00:15:5d:f0:e8:50 --name momiji -it momiji /sbin/init
+docker container run --privileged --mac-address 00:15:5d:f0:e8:50 -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix --name momiji -it momiji /sbin/init
 ```
 
 ### 4.6. Open Container
