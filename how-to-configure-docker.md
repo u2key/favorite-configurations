@@ -68,7 +68,7 @@ docker import - momiji:latest < momiji.docker.tar
 
 ### 4.5. Create Container
 ```
-docker container run --privileged --mac-address 00:15:5d:f0:e8:50 -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix --name momiji -it momiji /sbin/init
+docker container run --privileged --mac-address 00:15:5d:f0:e8:50 -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix -v /home/ubuntu:/home/ubuntu --name momiji -it momiji /sbin/init
 ```
 
 ### 4.6. Open Container
