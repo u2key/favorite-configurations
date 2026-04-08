@@ -8,17 +8,17 @@ export PATH="${PATH}:${HOME}/favorite-configurations/scripts/"
 
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/include/opencv4"
 
-alias ll='ls -ahl'
-alias rr='rm -vrf'
-alias rm-empty='find ./ -depth -type d -empty -exec rm -v -r {} \;'
-alias sd='sudo shutdown now'
-alias re='sudo systemctl reboot'
-alias uefi='sudo systemctl reboot --firmware-setup'
-alias remmina='GDK_BACKEND=x11 remmina'
 alias bashrc='vim ${HOME}/.bashrc && source ${HOME}/.bashrc'
 alias git-pull='git pull origin main'
 alias git-push='git push --force-with-lease'
+alias ll='ls -ahl'
 alias otp='pushd ~/gmail-python-api/ && python3 main.py && popd'
+alias re='sudo systemctl reboot'
+alias remmina='GDK_BACKEND=x11 remmina >/dev/null 2>/dev/null'
+alias rm-empty='find ./ -depth -type d -empty -exec rm -v -r {} \;'
+alias rr='rm -vrf'
+alias sd='sudo shutdown now'
+alias uefi='sudo systemctl reboot --firmware-setup'
 alias wserv='python3 -m http.server 8080'
 
 if [ $UID -eq 0 ]; then
