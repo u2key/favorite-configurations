@@ -14,7 +14,6 @@ import base64
 import magic
 from datetime import datetime
 from datetime import timedelta
-from slack-api-secret import *
 
 SLACK_API_TOKEN  = ""
 SLACK_BOT_TOKEN  = ""
@@ -22,6 +21,7 @@ SLACK_CHANNEL_ID = ""
 
 MYSQL_USERNAME   = ""
 MYSQL_PASSWORD   = ""
+MYSQL_DATABASE   = ""
 
 SLACK_USERS      = "https://slack.com/api/users.list"
 SLACK_CHANNELS   = "https://slack.com/api/conversations.list?types=public_channel,private_channel"
