@@ -1,0 +1,76 @@
+#! /usr/bin/python3
+
+import os
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+import mysql.connector
+import requests
+import json
+from datetime import datetime, date
+
+SLACK_API_TOKEN  = ""
+SLACK_BOT_TOKEN  = ""
+SLACK_CHANNEL_ID = ""
+
+MYSQL_USERNAME   = ""
+MYSQL_PASSWORD   = ""
+
+url = "https://slack.com/api/chat.postMessage"
+
+class MySQLManager():
+  mysql_connection = None
+  mysql_cursor = None
+  def __del__(self):
+    self.disconnect()
+  def connect(self):
+    self.mysql_connection = mysql.connector.connect(
+      user=MYSQL_USERNAME,
+      password=MYSQL_PASSWORD,
+      host="localhost",
+      database="LAA1177434"
+    )
+    if not self.mysql_connection.is_connected():
+      raise Exception("Connection Failed")
+    else:
+      print("Connected")
+    self.mysql_cursor = self.mysql_connection.cursor(dictionary=True)
+  def disconnect(self):
+    if self.mysql_cursor is not None:
+      self.mysql_cursor.close
+      self.mysql_cursor = None
+    if self.mysql_connection is not None:
+      self.mysql_connection.close
+      self.mysql_connection = None
+  def select(self, query):
+    self.mysql_cursor.execute(query)
+    result = self.mysql_cursor.fetchall()
+    return result
+  def insert(self, query):
+    self.mysql_cursor.execute(query)
+    self.mysql_connection.commit()
+  def update(self, query):
+    self.mysql_cursor.execute(query)
+    self.mysql_connection.commit()
+
+def main():
+  today = date.today()
+  man = MySQLManager()
+  man.connect()
+  result = man.select(f"select * from Birthday where month='{today.month}' and day='{today.day}'");
+  if len(result) == 0:
+    print(f"No one had a birthday today.")
+    exit(0)
+  else:
+    for data in result:
+      print(f"Today is {data['user_name']}'s birthday")
+      headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {SLACK_API_TOKEN}"
+      }
+      payload = {
+        "channel": f"{SLACK_CHANNEL_ID}",
+        "text": f"Today is {data['user_name']}'s birthday :birthday:"
+      }
+      response = requests.post(url, headers=headers, data=json.dumps(payload))
+      print(response.json())
+
+if __name__ == '__main__': main()
