@@ -27,7 +27,7 @@ class MySQLManager():
       user=MYSQL_USERNAME,
       password=MYSQL_PASSWORD,
       host="localhost",
-      database="LAA1177434"
+      database=MYSQL_DATABASE
     )
     if not self.mysql_connection.is_connected():
       raise Exception("Connection Failed")
