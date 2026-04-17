@@ -35,10 +35,10 @@ class MySQLManager():
     self.disconnect()
   def connect(self):
     self.mysql_connection = mysql.connector.connect(
-      user="webserver",
-      password=MYSQL_USERNAME,
+      user=MYSQL_USERNAME,
+      password=MYSQL_PASSWORD,
       host="localhost",
-      database=MYSQL_PASSWORD
+      database=MYSQL_DATABASE
     )
     if not self.mysql_connection.is_connected():
       raise Exception("Connection Failed")
