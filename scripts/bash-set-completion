@@ -15,7 +15,7 @@ function _BASH_COMPLETION_FFMPEG_IMAGE() {
   _init_completion || return
   local defaultIFS=$' \t\n'
   local IFS=$defaultIFS
-  COMPREPLY=($(compgen -W '--log-level --list --input-file --referer --rotate --crop --aspect' -- "$cur"))
+  COMPREPLY=($(compgen -W '--log-level --list --input-file --referer --rotate --size --crop --aspect' -- "$cur"))
 }
 complete -F _BASH_COMPLETION_FFMPEG_IMAGE ffmpeg-image
 complete -F _BASH_COMPLETION_FFMPEG_IMAGE ffi

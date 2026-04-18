@@ -5,6 +5,7 @@ LIST="FALSE"
 INPUT_FILES=()
 REFERER=""
 ROTATE="0"
+SIZE=""
 CROP=""
 ASPECT=""
 N13=$(cat /dev/urandom | tr -dc '1-9' | head -c13)
@@ -30,6 +31,9 @@ while getopts ":-:" OPT; do
   elif [ "${OPT}" = "--rotate" ]; then
     ROTATE="${OPTARG}"
     shift
+  elif [ "${OPT}" = "--size" ]; then
+    SIZE="${OPTARG}"
+    shift
   elif [ "${OPT}" = "--crop" ]; then
     CROP="${OPTARG}"
     shift
@@ -48,6 +52,9 @@ FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -protocol_whitelist crypto,data,file,https
 FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -analyzeduration 10M -probesize 10M"
 if [ ! "${REFERER}" = "" ]; then
   FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -referer ${REFERER}"
+fi
+if [ ! "${SIZE}" = "" ]; then
+  FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -s ${SIZE}"
 fi
 FFMPEG_OUTPUT_OPT="-q:v 1 -map_chapters -1 -map_metadata -1"
 if [ "${ROTATE}" != "" ] && [ "$ROTATE" != "0" ]; then
