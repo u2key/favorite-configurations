@@ -18,6 +18,7 @@ alias remmina='GDK_BACKEND=x11 remmina >/dev/null 2>/dev/null'
 alias rm-empty='find ./ -depth -type d -empty -exec rm -v -r {} \;'
 alias rr='rm -vrf'
 alias sd='sudo shutdown now'
+alias switch-jdk='sudo update-alternatives --config java'
 alias uefi='sudo systemctl reboot --firmware-setup'
 alias wserv='python3 -m http.server 8080'
 
