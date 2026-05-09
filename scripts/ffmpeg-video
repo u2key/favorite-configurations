@@ -2,11 +2,13 @@
 
 LOG_LEVEL="warning"
 YT_DLP="FALSE"
+FORMAT=""
 INPUT_FILE=""
+N16=$(cat /dev/urandom | tr -dc '1-9' | head -c16)
+OUTPUT_FILE="${N16}.mp4"
 REFERER=""
 M3U8=FALSE
 DOWNLOAD_INDEX=0
-N16=$(cat /dev/urandom | tr -dc '1-9' | head -c16)
 RECONNECT=TRUE
 START_TIME=""
 END_TIME=""
@@ -24,16 +26,22 @@ while getopts ":-:" OPT; do
     shift
   elif [ "${OPT}" = "--yt-dlp" ]; then
     YT_DLP="TRUE"
+  elif [ "${OPT}" = "--format" ]; then
+    FORMAT="${OPTARG}"
+    shift
   elif [ "${OPT}" = "--input-file" ]; then
     INPUT_FILE="${OPTARG}"
+    shift
+  elif [ "${OPT}" = "--output-file" ]; then
+    OUTPUT_FILE="${OPTARG}"
     shift
   elif [ "${OPT}" = "--referer" ]; then
     REFERER="${OPTARG}"
     shift
   elif [ "${OPT}" = "--m3u8" ]; then
-    M3U8=TRUE
+    M3U8="TRUE"
   elif [ "${OPT}" = "--no-reconnect" ]; then
-    RECONNECT=FALSE
+    RECONNECT="FALSE"
   elif [ "${OPT}" = "--start" ]; then
     START_TIME="${OPTARG}"
     shift
@@ -43,7 +51,7 @@ while getopts ":-:" OPT; do
   elif [ "${OPT}" = "--variable-frame-rate" ]; then
     VARIABLE_FRAME_RATE=TRUE
   elif [ "${OPT}" = "--no-audio" ]; then
-    AUDIO=FALSE
+    AUDIO="FALSE"
   elif [ "${OPT}" = "--rotate" ]; then
     ROTATE="${OPTARG}"
     shift
@@ -66,15 +74,31 @@ if [ "${M3U8}" = "TRUE" ]; then
   if [ ! "${REFERER}" = "" ]; then
     CURL_HEADER="-H 'Referer: ${REFERER}'"
   fi
-  echo "curl ${CURL_HEADER} \"${INPUT_FILE}\" | strings"
+  echo "curl ${CURL_HEADER} \"${INPUT_FILE}\" | strings > download${DOWNLOAD_INDEX}.m3u8"
   curl ${CURL_HEADER} "${INPUT_FILE}" | strings > download${DOWNLOAD_INDEX}.m3u8
-  for e in jpeg jpg mp4 png; do
-    cat download${DOWNLOAD_INDEX}.m3u8 | sed -r "s/\.${e}$/\.ts/;s/^(()|(#.*)|(https?:\/\/.*))$/\1/;t;s/^/${INPUT_FILE_DIR//\//\\/}/" > fixed.m3u8
-    mv fixed.m3u8 download${DOWNLOAD_INDEX}.m3u8
+  cat download${DOWNLOAD_INDEX}.m3u8 | sed -r "s/^(()|(#.*)|(https?:\/\/.*))$/\1/;t;s/^/${INPUT_FILE_DIR//\//\\/}/" | grep -v \# > download${DOWNLOAD_INDEX}.list
+  rm -rfv download${DOWNLOAD_INDEX}.m3u8
+  vim download${DOWNLOAD_INDEX}.list
+  INPUT_FILES=()
+  while read INPUT_FILE; do
+    if [ ! "${INPUT_FILE}" = "" ]; then
+      INPUT_FILES+=("${INPUT_FILE}")
+    fi
+  done < download${DOWNLOAD_INDEX}.list
+  rm -rfv download${DOWNLOAD_INDEX}.list
+  mkdir -p _temp${DOWNLOAD_INDEX}
+  CONCAT_FILE="_temp${DOWNLOAD_INDEX}/concat.list"
+  for a in "${!INPUT_FILES[@]}"; do
+    INPUT_FILE=${INPUT_FILES[$a]}
+    OUTPUT_FILE=$(printf "_temp${DOWNLOAD_INDEX}/${N16}%03d.mp4" ${a})
+    echo "ffmpeg-video --format mpegts --input-file ${INPUT_FILE} --output-file ${OUTPUT_FILE}"
+    ffmpeg-video --format mpegts --input-file ${INPUT_FILE} --output-file ${OUTPUT_FILE}
+    echo "file '${OUTPUT_FILE}'" >> ${CONCAT_FILE}
   done
-  vim download${DOWNLOAD_INDEX}.m3u8
-  INPUT_FILE=download${DOWNLOAD_INDEX}.m3u8
-  RECONNECT=FALSE
+  echo "ffmpeg-video --input-file ${CONCAT_FILE} --format concat --no-reconnect"
+  ffmpeg-video --input-file ${CONCAT_FILE} --format concat --no-reconnect
+  rm -rfv _temp${DOWNLOAD_INDEX}
+  exit
 fi
 
 FFMPEG_INPUT_OPT="-loglevel ${LOG_LEVEL} -err_detect ignore_err"
@@ -97,6 +121,10 @@ fi
 if [ "${END_TIME}" != "" ]; then
   FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -to ${END_TIME}"
 fi
+if [ "${FORMAT}" != "" ]; then
+  FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -f ${FORMAT}"
+fi
+FFMPEG_OUTPUT_OPT_VF="scale=trunc(iw/2)*2:trunc(ih/2)*2"
 FFMPEG_OUTPUT_OPT="-tag:v hvc1 -movflags +faststart"
 FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -max_muxing_queue_size 9999"
 FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -c:v libx265 -level:v 4.0"
@@ -107,40 +135,43 @@ if [ "${VARIABLE_FRAME_RATE}" = "TRUE" ]; then
 fi
 FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -bufsize 100M"
 if [ "${AUDIO}" = "TRUE" ]; then
-  FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -map 0:a:0 -c:a aac -aac_coder twoloop -ac 2 -ar 48000"
+  FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -map 0:a:0? -c:a aac -aac_coder twoloop -ac 2 -ar 48000"
 fi
-FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -map 0:v:0 -map_chapters -1 -map -0:s -map_metadata -1"
+FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -map 0:v:0? -map_chapters -1 -map -0:s -map_metadata -1"
 FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -fflags +bitexact -flags:v +bitexact -flags:a +bitexact"
 if [ "${ROTATE}" != "" ] && [ "$ROTATE" != "0" ]; then
   if [ "${ROTATE}" = "90" ]; then
-    FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -vf transpose=1"
+    FFMPEG_OUTPUT_OPT_VF="${FFMPEG_OUTPUT_OPT_VF},transpose=1"
   elif [ "${ROTATE}" = "180" ]; then
-    FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -vf hflip,vflip"
+    FFMPEG_OUTPUT_OPT_VF="${FFMPEG_OUTPUT_OPT_VF},hflip,vflip"
   elif [ "${ROTATE}" = "270" ]; then
-    FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -vf transpose=2"
+    FFMPEG_OUTPUT_OPT_VF="${FFMPEG_OUTPUT_OPT_VF},transpose=2"
   fi
 fi
 if [ "${CROP}" != "" ]; then
-  FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -vf crop=${CROP}"
+  FFMPEG_OUTPUT_OPT_VF="${FFMPEG_OUTPUT_OPT_VF},crop=${CROP}"
 fi
 if [ "${ASPECT}" != "" ]; then
   FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -aspect ${ASPECT}"
 fi
+if [ "${FFMPEG_OUTPUT_OPT_VF}" != "" ]; then
+  FFMPEG_OUTPUT_OPT="${FFMPEG_OUTPUT_OPT} -vf \"${FFMPEG_OUTPUT_OPT_VF}\""
+fi
 if [ "${INPUT_FILE}" != "" ]; then
   if [ "${YT_DLP}" = "FALSE" ]; then
-    echo "ffmpeg ${FFMPEG_INPUT_OPT} -i \"${INPUT_FILE}\" ${FFMPEG_OUTPUT_OPT} ${N16}.mp4"
-    bash -c "ffmpeg ${FFMPEG_INPUT_OPT} -i \"${INPUT_FILE}\" ${FFMPEG_OUTPUT_OPT} ${N16}.mp4"
+    echo "ffmpeg ${FFMPEG_INPUT_OPT} -i \"${INPUT_FILE}\" ${FFMPEG_OUTPUT_OPT} ${OUTPUT_FILE}"
+    bash -c "ffmpeg ${FFMPEG_INPUT_OPT} -i \"${INPUT_FILE}\" ${FFMPEG_OUTPUT_OPT} ${OUTPUT_FILE}"
   else
     YT_DLP_OPT="--recode-video mp4"
     YT_DLP_OPT="${YT_DLP_OPT} --format-sort \"vcodec:h265,quality,res,fps,hdr:12,acodec:aac\""
     YT_DLP_OPT="${YT_DLP_OPT} --downloader-args 'ffmpeg:${FFMPEG_INPUT_OPT}'"
     YT_DLP_OPT="${YT_DLP_OPT} --postprocessor-args 'ffmpeg:${FFMPEG_OUTPUT_OPT}'"
-    YT_DLP_OPT="${YT_DLP_OPT} --output ${N16}.mp4"
+    YT_DLP_OPT="${YT_DLP_OPT} --output ${OUTPUT_FILE}"
     echo "yt-dlp ${YT_DLP_OPT} \"${INPUT_FILE}\""
     bash -c "yt-dlp ${YT_DLP_OPT} \"${INPUT_FILE}\""
   fi
-  echo "chmod 600 ${N16}.mp4"
-  chmod 600 ${N16}.mp4
+  echo "chmod 600 ${OUTPUT_FILE}"
+  chmod 600 ${OUTPUT_FILE}
 fi
 
 if [ "${M3U8}" = "TRUE" ]; then
