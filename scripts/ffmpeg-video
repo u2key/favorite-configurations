@@ -5,6 +5,7 @@ YT_DLP="FALSE"
 FORMAT=""
 INPUT_FILE=""
 N16=$(cat /dev/urandom | tr -dc '1-9' | head -c16)
+N12=$(cat /dev/urandom | tr -dc '1-9' | head -c12)
 OUTPUT_FILE="${N16}.mp4"
 REFERER=""
 M3U8=FALSE
@@ -77,7 +78,6 @@ if [ "${M3U8}" = "TRUE" ]; then
   echo "curl ${CURL_HEADER} \"${INPUT_FILE}\" | strings > download${DOWNLOAD_INDEX}.m3u8"
   curl ${CURL_HEADER} "${INPUT_FILE}" | strings > download${DOWNLOAD_INDEX}.m3u8
   cat download${DOWNLOAD_INDEX}.m3u8 | sed -r "s/^(()|(#.*)|(https?:\/\/.*))$/\1/;t;s/^/${INPUT_FILE_DIR//\//\\/}/" | grep -v \# > download${DOWNLOAD_INDEX}.list
-  rm -rfv download${DOWNLOAD_INDEX}.m3u8
   vim download${DOWNLOAD_INDEX}.list
   INPUT_FILES=()
   while read INPUT_FILE; do
@@ -85,19 +85,21 @@ if [ "${M3U8}" = "TRUE" ]; then
       INPUT_FILES+=("${INPUT_FILE}")
     fi
   done < download${DOWNLOAD_INDEX}.list
-  rm -rfv download${DOWNLOAD_INDEX}.list
   mkdir -p _temp${DOWNLOAD_INDEX}
-  CONCAT_FILE="_temp${DOWNLOAD_INDEX}/concat.list"
+  cd _temp${DOWNLOAD_INDEX}
+  CONCAT_FILE="concat.list"
   for a in "${!INPUT_FILES[@]}"; do
     INPUT_FILE=${INPUT_FILES[$a]}
-    OUTPUT_FILE=$(printf "_temp${DOWNLOAD_INDEX}/${N16}%03d.mp4" ${a})
+    OUTPUT_FILE=$(printf "${N12}%04d.mp4" ${a})
     echo "ffmpeg-video --format mpegts --input-file ${INPUT_FILE} --output-file ${OUTPUT_FILE}"
     ffmpeg-video --format mpegts --input-file ${INPUT_FILE} --output-file ${OUTPUT_FILE}
     echo "file '${OUTPUT_FILE}'" >> ${CONCAT_FILE}
   done
-  echo "ffmpeg-video --input-file ${CONCAT_FILE} --format concat --no-reconnect"
-  ffmpeg-video --input-file ${CONCAT_FILE} --format concat --no-reconnect
-  rm -rfv _temp${DOWNLOAD_INDEX}
+  OUTPUT_FILE="${N16}.mp4"
+  echo "ffmpeg-video --input-file ${CONCAT_FILE} --output-file ../${OUTPUT_FILE} --format concat --no-reconnect"
+  ffmpeg-video --input-file ${CONCAT_FILE} --output-file ../${OUTPUT_FILE} --format concat --no-reconnect
+  cd ..
+  rm -rfv download${DOWNLOAD_INDEX}.m3u8 download${DOWNLOAD_INDEX}.list _temp${DOWNLOAD_INDEX}
   exit
 fi
 
