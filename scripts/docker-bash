@@ -1,0 +1,5 @@
+#! /bin/bash
+
+if [ $# -ge 1 ]; then
+  docker container exec -it $1 /bin/bash
+fi 
