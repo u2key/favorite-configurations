@@ -15,13 +15,7 @@ import magic
 from datetime import datetime
 from datetime import timedelta
 
-SLACK_API_TOKEN  = ""
-SLACK_BOT_TOKEN  = ""
-SLACK_CHANNEL_ID = ""
-
-MYSQL_USERNAME   = ""
-MYSQL_PASSWORD   = ""
-MYSQL_DATABASE   = ""
+from slack_api_secret import *
 
 SLACK_USERS      = "https://slack.com/api/users.list"
 SLACK_CHANNELS   = "https://slack.com/api/conversations.list?types=public_channel,private_channel"
