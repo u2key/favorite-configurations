@@ -1,0 +1,7 @@
+mysqld-adduser.sql
+mysqld-dump.sql
+nginx.conf/
+nginx-root/
+scripts/loaded_ts
+scripts/slack-api-secret
+tex2pdf.sh
