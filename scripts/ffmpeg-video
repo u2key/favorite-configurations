@@ -9,6 +9,7 @@ N12=$(cat /dev/urandom | tr -dc '1-9' | head -c12)
 OUTPUT_FILE="${N16}.mp4"
 REFERER=""
 M3U8=FALSE
+M3U8_CONCAT_TS=FALSE
 DOWNLOAD_INDEX=0
 RECONNECT=TRUE
 START_TIME=""
@@ -41,6 +42,9 @@ while getopts ":-:" OPT; do
     shift
   elif [ "${OPT}" = "--m3u8" ]; then
     M3U8="TRUE"
+  elif [ "${OPT}" = "--m3u8-concat-ts" ]; then
+    M3U8="TRUE"
+    M3U8_CONCAT_TS="TRUE"
   elif [ "${OPT}" = "--no-reconnect" ]; then
     RECONNECT="FALSE"
   elif [ "${OPT}" = "--start" ]; then
@@ -71,12 +75,21 @@ done
 if [ "${M3U8}" = "TRUE" ]; then
   INPUT_FILE_DIR="$(dirname ${INPUT_FILE})/"
   DOWNLOAD_INDEX=$(ls download*.m3u8 2>/dev/null | wc -l)
-  CURL_HEADER=""
+  CURL_HEADER="-A 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36'"
   if [ ! "${REFERER}" = "" ]; then
-    CURL_HEADER="-H 'Referer: ${REFERER}'"
+    CURL_HEADER="${CURL_HEADER} -H 'Referer: ${REFERER}'"
   fi
   echo "curl ${CURL_HEADER} \"${INPUT_FILE}\" | strings > download${DOWNLOAD_INDEX}.m3u8"
   curl ${CURL_HEADER} "${INPUT_FILE}" | strings > download${DOWNLOAD_INDEX}.m3u8
+  if [ "${M3U8_CONCAT_TS}" = "FALSE" ]; then
+    cat download${DOWNLOAD_INDEX}.m3u8 | sed -r "s/^(()|(#.*)|(https?:\/\/.*))$/\1/;t;s/^/${INPUT_FILE_DIR//\//\\/}/" > download${DOWNLOAD_INDEX}.temp.m3u8
+    mv -v download${DOWNLOAD_INDEX}.temp.m3u8 download${DOWNLOAD_INDEX}.m3u8
+    vim download${DOWNLOAD_INDEX}.m3u8
+    echo "ffmpeg-video --input-file download${DOWNLOAD_INDEX}.m3u8 --no-reconnect"
+    ffmpeg-video --input-file download${DOWNLOAD_INDEX}.m3u8 --no-reconnect
+    rm -rfv download${DOWNLOAD_INDEX}.m3u8
+    exit
+  fi
   cat download${DOWNLOAD_INDEX}.m3u8 | sed -r "s/^(()|(#.*)|(https?:\/\/.*))$/\1/;t;s/^/${INPUT_FILE_DIR//\//\\/}/" | grep -v \# > download${DOWNLOAD_INDEX}.list
   vim download${DOWNLOAD_INDEX}.list
   INPUT_FILES=()
