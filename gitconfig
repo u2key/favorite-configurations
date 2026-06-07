@@ -2,10 +2,17 @@
   gpgsign = true
 [core]
   editor = /usr/bin/vim
+  pager = delta
 [credential]
   helper = cache --timeout=3600
+[delta]
+  navigate = true
+  light = false
+  side-by-side = true
 [gpg]
   format = ssh
+[interactive]
+  diffFilter = delta --color-only
 [pull]
   default = current
   rebase = true
@@ -19,3 +26,8 @@
   email = 248891400+u2key@users.noreply.github.com
   name = u2key
   signingkey = ~/.ssh/id_u2key_ed25519
+[filter "lfs"]
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
