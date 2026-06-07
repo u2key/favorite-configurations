@@ -60,12 +60,12 @@ class MySQLManager():
 man = MySQLManager()
 man.connect()
 
-def mysql_insert(user, channel, text, name, data, date, time):
+def mysql_insert(user, channel, text, name, data, date, time, thread_ts):
   text = text.replace('\\', '\\\\').replace('\'', '\\\'')
-  result = man.select(f"select * from ArchivedData where date='{date}' and time='{time}' and name='{name}' and text='{text}'")
+  result = man.select(f"select * from {MYSQL_TABLE} where date='{date}' and time='{time}' and name='{name}' and text='{text}' and thread_ts='{thread_ts}'")
   if len(result) == 0:
     print("Insert")
-    man.insert(f"insert into ArchivedData(id,user,channel,text,name,data,date,time) values(0,'{user}','{channel}','{text}','{name}','{data}','{date}','{time}');")
+    man.insert(f"insert into {MYSQL_TABLE}(id,user,channel,text,name,data,date,time,thread_ts) values(0,'{user}','{channel}','{text}','{name}','{data}','{date}','{time}','{thread_ts}');")
     return True
   return False
 
@@ -112,6 +112,7 @@ def get_chs():
   return data['channels'] if 'channels' in data else []
 
 def get_replies(ch_id, ch_name, ts, users):
+  thread_ts = ts
   headers = {}
   headers['Authorization'] = f"Bearer {SLACK_API_TOKEN}"
   params = {}
@@ -141,14 +142,14 @@ def get_replies(ch_id, ch_name, ts, users):
         user = "Unknown"
       if 'text' in msgs[k]:
         text = msgs[k]['text']
-        forward_text(user, ch_name, text, date, time)
+        forward_text(user, ch_name, text, date, time, thread_ts)
       if 'files' in msgs[k]:
         files = msgs[k]['files']
         for l in range(len(files)):
           name = files[l]['name'] if 'name' in files[l] else 'unknown.file'
           if 'url_private_download' in files[l]:
             URL  = files[l]['url_private_download']
-            forward_file(user, ch_name, name, URL, date, time, timestamp)
+            forward_file(user, ch_name, name, URL, date, time, timestamp, thread_ts)
   return 0
 
 def get_hist(ch_id, ch_name, start_ts, end_ts, users):
@@ -171,18 +172,18 @@ def get_hist(ch_id, ch_name, start_ts, end_ts, users):
         print("ts is not found.")
   return 0
 
-def forward_text(user, ch, text, date, time):
-  mysql_insert(user, ch, text, '', '', date, time)
+def forward_text(user, ch, text, date, time, thread_ts):
+  mysql_insert(user, ch, text, '', '', date, time, thread_ts)
   print(f"{date} {time} {user}@{ch} {text}")
 
-def forward_file(user, ch, name, URL, date, time, timestamp):
+def forward_file(user, ch, name, URL, date, time, timestamp, thread_ts):
   headers = {"Authorization": f"Bearer {SLACK_API_TOKEN}"}
   raw     = requests.get(URL, headers=headers, allow_redirects=True, stream=True).content
-  full_parent_path = f"/home/nfs1/Nginx/slack-archiver/ArchivedData/{timestamp}/"
+  full_parent_path = f"/home/nfs1/nginx-root/slack-archiver/ArchivedData/{timestamp}/"
   parent_path = f"ArchivedData/{timestamp}/"
   file_ext = name.split('.')[-1]
   file_name = f"{name}.txt" if "php" in file_ext else f"{name}"
-  status = mysql_insert(user, ch, '', name, f"{parent_path}{file_name}", date, time)
+  status = mysql_insert(user, ch, '', name, f"{parent_path}{file_name}", date, time, thread_ts)
   if status:
     if not os.path.exists(full_parent_path):
       os.mkdir(full_parent_path)
