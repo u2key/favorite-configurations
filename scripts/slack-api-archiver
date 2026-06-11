@@ -1,7 +1,6 @@
 #! /usr/bin/python3
 
 import os
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import mysql.connector
 import sys
 import re
@@ -22,6 +21,8 @@ SLACK_CHANNELS   = "https://slack.com/api/conversations.list?types=public_channe
 SLACK_HISTORY    = "https://slack.com/api/conversations.history"
 SLACK_REPLIES    = "https://slack.com/api/conversations.replies"
 
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 class MySQLManager():
   mysql_connection = None
   mysql_cursor = None
@@ -31,7 +32,7 @@ class MySQLManager():
     self.mysql_connection = mysql.connector.connect(
       user=MYSQL_USERNAME,
       password=MYSQL_PASSWORD,
-      host="localhost",
+      host="127.0.0.1",
       database=MYSQL_DATABASE
     )
     if not self.mysql_connection.is_connected():
