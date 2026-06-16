@@ -158,7 +158,7 @@ def get_hist(ch_id, ch_name, start_ts, end_ts, users):
   headers['Authorization'] = f"Bearer {SLACK_API_TOKEN}"
   params = {}
   params['channel'] = ch_id
-  params['count']   = "1000000"
+  params['count']   = "10000000"
   params['oldest']  = start_ts
   params['latest']  = end_ts
   ch_hist = requests.get(SLACK_HISTORY, headers=headers, params=params).json()
