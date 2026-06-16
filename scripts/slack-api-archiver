@@ -180,8 +180,8 @@ def forward_text(user, ch, text, date, time, thread_ts):
 def forward_file(user, ch, name, URL, date, time, timestamp, thread_ts):
   headers = {"Authorization": f"Bearer {SLACK_API_TOKEN}"}
   raw     = requests.get(URL, headers=headers, allow_redirects=True, stream=True).content
-  full_parent_path = f"/home/nfs1/nginx-root/slack-archiver/ArchivedData/{timestamp}/"
-  parent_path = f"ArchivedData/{timestamp}/"
+  full_parent_path = f"/home/ubuntu/webserver/nginx-root/slack-archiver/files/{timestamp}/"
+  parent_path = f"files/{timestamp}/"
   file_ext = name.split('.')[-1]
   file_name = f"{name}.txt" if "php" in file_ext else f"{name}"
   status = mysql_insert(user, ch, '', name, f"{parent_path}{file_name}", date, time, thread_ts)
