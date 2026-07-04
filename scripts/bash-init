@@ -9,6 +9,7 @@ export PATH="${PATH}:${HOME}/favorite-configurations/scripts/"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/include/opencv4"
 
 alias bashrc='vim ${HOME}/.bashrc && source ${HOME}/.bashrc'
+alias git-amend='git commit --amend --no-edit'
 alias git-pull='git pull origin main'
 alias git-push='git push --force-with-lease'
 alias ll='ls -ahl'
