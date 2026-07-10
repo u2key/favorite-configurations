@@ -4,6 +4,7 @@ LOG_LEVEL="warning"
 LIST="FALSE"
 INPUT_FILES=()
 REFERER=""
+PIX_FORMAT=""
 ROTATE="0"
 SIZE=""
 CROP=""
@@ -27,6 +28,9 @@ while getopts ":-:" OPT; do
     shift
   elif [ "${OPT}" = "--referer" ]; then
     REFERER="${OPTARG}"
+    shift
+  elif [ "${OPT}" = "--pix-format" ]; then
+    PIX_FORMAT="${OPTARG}"
     shift
   elif [ "${OPT}" = "--rotate" ]; then
     ROTATE="${OPTARG}"
@@ -52,6 +56,9 @@ FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -protocol_whitelist crypto,data,file,https
 FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -analyzeduration 50M -probesize 50M"
 if [ ! "${REFERER}" = "" ]; then
   FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -referer ${REFERER}"
+fi
+if [ ! "${PIX_FORMAT}" = "" ]; then
+  FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -pix_fmt ${PIX_FORMAT}"
 fi
 if [ ! "${SIZE}" = "" ]; then
   FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -s ${SIZE}"
