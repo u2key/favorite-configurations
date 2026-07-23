@@ -63,11 +63,19 @@ man.connect()
 
 def mysql_insert(user, channel, text, name, data, date, time, thread_ts):
   text = text.replace('\\', '\\\\').replace('\'', '\\\'')
-  result = man.select(f"select * from {MYSQL_TABLE} where date='{date}' and time='{time}' and name='{name}' and text='{text}' and thread_ts='{thread_ts}'")
+  result = man.select(f"select * from {MYSQL_TABLE} where date='{date}' and time='{time}' and name='{name}' and text='{text}'")
   if len(result) == 0:
     print("Insert")
-    man.insert(f"insert into {MYSQL_TABLE}(id,user,channel,text,name,data,date,time,thread_ts) values(0,'{user}','{channel}','{text}','{name}','{data}','{date}','{time}','{thread_ts}');")
+    tts = f"'{thread_ts}'" if thread_ts else "NULL"
+    man.insert(f"insert into {MYSQL_TABLE}(id,user,channel,text,name,data,date,time,thread_ts) values(0,'{user}','{channel}','{text}','{name}','{data}','{date}','{time}','{tts}');")
     return True
+  else:
+    existing_id = record['id']
+    existing_ts = record['thread_ts']
+    if (existing_ts is None or existing_ts == '') and thread_ts:
+      print("Update thread_ts")
+      man.update(f"UPDATE {MYSQL_TABLE} SET thread_ts='{thread_ts}' WHERE id={existing_id};")
+      return True
   return False
 
 def get_ts(enforce=False, ddays=7, dhours=0, dminutes=3):
@@ -79,7 +87,8 @@ def get_ts(enforce=False, ddays=7, dhours=0, dminutes=3):
   start_ts = logged_dt - timedelta(days=ddays)
   with open("loaded_ts", mode='w') as f:
     now_ts = datetime.now().strftime(ts_format)
-    end_ts = datetime.strptime(now_ts, ts_format)
+    #end_ts = datetime.strptime(now_ts, ts_format)
+    end_ts = start_ts + timedelta(days=31)
     if (not enforce) and end_ts - start_ts < timedelta(days=ddays, hours=dhours, minutes=dminutes):
       f.write(f"{logged_ts}\n")
       return [None, None]
@@ -174,10 +183,12 @@ def get_hist(ch_id, ch_name, start_ts, end_ts, users):
   return 0
 
 def forward_text(user, ch, text, date, time, thread_ts):
+  #if ch == "general-2026": ch = "general-2025"
   mysql_insert(user, ch, text, '', '', date, time, thread_ts)
   print(f"{date} {time} {user}@{ch} {text}")
 
 def forward_file(user, ch, name, URL, date, time, timestamp, thread_ts):
+  #if ch == "general-2026": ch = "general-2025"
   headers = {"Authorization": f"Bearer {SLACK_API_TOKEN}"}
   raw     = requests.get(URL, headers=headers, allow_redirects=True, stream=True).content
   full_parent_path = f"/home/ubuntu/webserver/nginx-root/slack-archiver/files/{timestamp}/"
