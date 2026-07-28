@@ -58,7 +58,7 @@ def main():
     for data in result:
       print(f"Today is {data['user_name']}'s birthday")
       headers = {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json; charset=utf-8",
         "Authorization": f"Bearer {SLACK_API_TOKEN}"
       }
       payload = {

@@ -67,9 +67,10 @@ def mysql_insert(user, channel, text, name, data, date, time, thread_ts):
   if len(result) == 0:
     print("Insert")
     tts = f"'{thread_ts}'" if thread_ts else "NULL"
-    man.insert(f"insert into {MYSQL_TABLE}(id,user,channel,text,name,data,date,time,thread_ts) values(0,'{user}','{channel}','{text}','{name}','{data}','{date}','{time}','{tts}');")
+    man.insert(f"insert into {MYSQL_TABLE}(id,user,channel,text,name,data,date,time,thread_ts) values(0,'{user}','{channel}','{text}','{name}','{data}','{date}','{time}',{tts});")
     return True
   else:
+    record = result[0]
     existing_id = record['id']
     existing_ts = record['thread_ts']
     if (existing_ts is None or existing_ts == '') and thread_ts:
