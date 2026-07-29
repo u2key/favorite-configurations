@@ -20,6 +20,7 @@ alias rm-empty='find ./ -depth -type d -empty -exec rm -v -r {} \;'
 alias rr='rm -vrf'
 alias sd='sudo shutdown now'
 alias switch-jdk='sudo update-alternatives --config java'
+alias time='hyperfine --runs 1 --show-output'
 alias uefi='sudo systemctl reboot --firmware-setup'
 alias wserv='python3 -m http.server 25565 > /dev/null 2> /dev/null'
 
