@@ -118,7 +118,7 @@ fi
 
 FFMPEG_INPUT_OPT="-loglevel ${LOG_LEVEL} -err_detect ignore_err"
 FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -fflags +discardcorrupt"
-FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -protocol_whitelist crypto,data,file,https,tcp,tls"
+FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -protocol_whitelist crypto,data,file,http,https,tcp,tls"
 if [ ! "${REFERER}" = "" ]; then
   FFMPEG_INPUT_OPT="${FFMPEG_INPUT_OPT} -referer ${REFERER}"
 fi
