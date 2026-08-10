@@ -1,10 +1,11 @@
-Host *
-  ServerAliveInterval 60
-  ServerAliveCountMax 300
-  IdentitiesOnly yes
-  GSSAPIAuthentication no
-  #ForwardAgent yes
 Host github
   Hostname github.com
   User git
-  IdentityFile ~/.ssh/id_u2key_ed25519
+  #IdentityFile ~/.ssh/id_u2key_ed25519
+Host *
+  ServerAliveInterval 60
+  ServerAliveCountMax 300
+  #IdentitiesOnly yes
+  IdentitiesOnly no
+  GSSAPIAuthentication no
+  #ForwardAgent yes
