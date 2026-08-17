@@ -10,7 +10,7 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/include/opencv4"
 
 alias bashrc='vim ${HOME}/.bashrc && source ${HOME}/.bashrc'
 alias git-amend='git commit --amend --no-edit'
-alias git-pull='git pull origin main'
+alias git-pull='git pull origin $(git branch | grep "*" | sed "s/\* //")'
 alias git-push='git push --force-with-lease'
 alias ll='ls -hl'
 alias otp='pushd ~/gmail-python-api/ && python3 main.py && popd'
