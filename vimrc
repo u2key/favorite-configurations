@@ -7,6 +7,7 @@ set softtabstop=2
 set expandtab
 set smartindent
 set fenc=utf-8
+set mouse=
 syntax on
 command NoExpandTab : set noexpandtab
 command Ucase       : %!tr "a-z" "A-Z"
