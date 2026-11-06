@@ -9,6 +9,7 @@ export PATH="${PATH}:${HOME}/favorite-configurations/scripts/"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/include/opencv4"
 
 alias bashrc='vim ${HOME}/.bashrc && source ${HOME}/.bashrc'
+alias cert-renew='sudo certbot certonly --manual -d *.ourslab.jp --preferred-challenges dns'
 alias git-amend='git commit --amend --no-edit'
 alias git-pull='git pull origin $(git branch | grep "*" | sed "s/\* //")'
 alias git-push='git push --force-with-lease'
